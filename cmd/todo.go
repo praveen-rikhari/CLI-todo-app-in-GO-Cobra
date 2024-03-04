@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -87,6 +88,20 @@ var listCmd = &cobra.Command{
 	},
 }
 
+var deletCmd = &cobra.Command{
+	Use:   "delete [id]",
+	Short: "Delete a todo by ID",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		id, err := strconv.Atoi(args[0])
+		if err != nil {
+			fmt.Println("Invalid ID :", args[0])
+			return
+		}
+		deleteTodo(id)
+	},
+}
+
 // function for creating todos
 func createTodo() {
 	// Prompt the user to enter the task for the todo item
@@ -139,7 +154,42 @@ func listTodos() {
 	}
 }
 
+func deleteTodo(id int) {
+    // Load todos from file
+    todos, err := loadTodosFromFile()
+    if err != nil {
+        fmt.Println("Error loading todos:", err)
+        return
+    }
+
+    // Find and delete todo with specified ID
+    var found bool
+    for i, todo := range todos {
+        if todo.ID == id {
+            // Remove the element at index i from todos slice
+            todos = append(todos[:i], todos[i+1:]...)
+            found = true
+            break
+        }
+    }
+
+    if !found {
+        fmt.Printf("Todo with ID %d not found.\n", id)
+        return
+    }
+
+    // Save the updated todos to the JSON file
+    err = saveTodosToFile(todos)
+    if err != nil {
+        fmt.Println("Error saving todos:", err)
+        return
+    }
+
+    fmt.Printf("Todo with ID %d deleted successfully.\n", id)
+}
+
+
 func init() {
 	rootCmd.AddCommand(todoCmd)
-	todoCmd.AddCommand(createCmd, listCmd)
+	todoCmd.AddCommand(createCmd, listCmd, deletCmd)
 }
