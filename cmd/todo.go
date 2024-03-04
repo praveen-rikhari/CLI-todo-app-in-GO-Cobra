@@ -34,6 +34,15 @@ var createCmd = &cobra.Command{
 	},
 }
 
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "Listing all the todos",
+	Run: func(cmd *cobra.Command, args []string) {
+		listTodos()
+	},
+}
+
+// function for creating todos
 func createTodo() {
 	// Prompt the user to enter the task for the todo item
 	fmt.Print("Enter your task : ")
@@ -57,7 +66,19 @@ func createTodo() {
 	}
 }
 
+// fucntion for listing out all the todos
+func listTodos() {
+	fmt.Println("Todo List 📄:")
+	if len(todoList) == 0 {
+		fmt.Println("Currently no todos.Please make one.")
+		return
+	}
+	for _, todo := range todoList {
+		fmt.Printf("ID : %d | Task : %s\n", todo.ID, todo.Task)
+	}
+}
+
 func init() {
 	rootCmd.AddCommand(todoCmd)
-	todoCmd.AddCommand(createCmd)
+	todoCmd.AddCommand(createCmd, listCmd)
 }
